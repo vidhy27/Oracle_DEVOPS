@@ -1,0 +1,43 @@
+1. What experience do you have in database architecture and design?
+
+I have approximately 18 years of experience in the IT industry, with over 8 years specializing in database architecture and design for both on-premises and cloud environments. I am proficient in core and advanced database activities, including high availability, disaster recovery, and database optimization techniques, ensuring the handling of millions of transactions daily with zero downtime as per business requirements.
+I have designed scalable database architectures on AWS, utilizing services like RDS and Aurora for high availability and automated backups. I have implemented multi-AZ deployments to ensure fault tolerance and used infrastructure-as-code tools like Terraform to streamline resource management.
+
+Additionally, I have hands-on experience with Oracle Cloud at Customer, successfully migrating clients with strict data residency requirements.
+
+
+2. Can you provide an example of a successful database architecture project you have worked on?
+
+I have led many projects to design and implement databases tailored to various applications and business needs. For example, in my previous role as a database architect for Flexcube financial software, I designed and implemented databases for multiple banks worldwide. One notable project was for NMB Tanzania Bank PLC. This complex and prestigious project involved migrating from an IBM Powerbox to an Oracle Supercluster, a private cloud model. The project, named NMB-bank Apollo, was completed on time and within budget, and the database has been successfully used by the client for the past six years.
+
+I have led many projects to design and implement databases tailored to various applications and business needs. For example, in my role as a database architect for capalytics tool, I designed and implemented databases for multiple banks worldwide. One notable project was for NMB Tanzania Bank PLC. This complex and prestigious project involved migrating from an IBM Powerbox to an Oracle Supercluster, a private cloud model. The project, named NMB-bank Apollo, was completed on time and within budget, and the database has been successfully used by the client for the past six years.
+
+3. How do you ensure data security and integrity in a database architecture?
+
+To ensure data security and integrity in database architecture, I implement strict access controls and authentication mechanisms, conduct regular and uncorrupted backups, and use encryption for data at rest and in transit, leveraging cloud-native tools and database best practices. Another critical aspect is maintaining compliance and security throughout the lifecycle management (LCM) process. I also regularly perform data audits and monitor for any potential vulnerabilities.
+
+4. What strategies do you use to optimize database performance?
+
+To optimize database performance, I focus on several key strategies, particularly on aligning hardware with database requirements. This involves selecting the optimal hardware configuration to utilize resources efficiently, reduce I/O operations, and minimize response times, thereby improving application performance.
+
+I employ various strategies, including efficient indexing, data partitioning, and query optimization using batch processing methods. Application-level optimizations such as connection pool tuning and query redesign are implemented to minimize unnecessary data selections. I also regularly review and fine-tune the database structure and parameters to ensure optimal performance based on transaction volumes and data types. By combining these strategies, I achieve a balanced approach that enhances overall database performance while maintaining data integrity and availability.
+
+
+5. How do you stay updated with the latest database technologies and trends?
+
+I continuously enhance my knowledge and stay current with the latest database technologies and trends by engaging in online courses, 
+attending industry conferences and webinars, hands-on practice, and networking with fellow database professionals. 
+I hold certifications as an Oracle Technology Expert, AWS Professional, and database specialist, 
+including OCI Professional certification in the technology stack. Additionally, I am certified in PRINCE2 Foundation & Practitioner, demonstrating my proficiency in project management practices.
+
+
+2. Each activity will have separate start or once we click on we have to complete all questions in single take.
+
+Mock interview, if content is more lengnth or short and crispy would be sufficient.
+
+1. Time limits or i can complete before our next schedule meeting.
+
+3. is that fine to attend from home. 
+
+
+
