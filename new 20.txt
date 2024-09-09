@@ -1,0 +1,63 @@
+Designed and implemented AWS cloud solutions for clients.
+
+Managed Oracle DB Instances, ensuring high availability and performance.
+
+Collaborated with development teams to integrate Oracle databases with AWS services.
+
+Optimized database performance and conducted regular maintenance.
+
+Developed backup and recovery stategies.
+
+Supported migration projects from on-premise to cloud infrastructure.
+
+Database Migration: Led the migration of on-premise oracle database to AWS RDS for oracle and Aurora Postgresql, improving scalability.
+Implemented Migration strategies and improvements to enhance query performance.
+
+Configured oracle data guard and AWS Multi-AZ deployments to ensure database resilience.
+
+Designed automated backup solutions using AWS backup and Oracle RMAN.
+
+Applied best practices for database encryption and access controls using AWS KMS and IAM.
+
+Setup monitoring using cloudwatch and oracle enterprise manager to proactively address performance issues.
+
+Analyzed ussage patterns and implemented cost saving measures such as reserved instances and storeage tiering 
+
+Developed comprehensive DR plans leveraging cross region replication.
+
+
+Ist Successful completion of complex DB migration from IBM PowerBox to Oracle SuperCluster for NMB Bank Plc (Tanzania) which first implemented
+succcessfuly across the globe.
+
+Database Migration: Led the migration of on-premise oracle database to AWS RDS for oracle and Aurora Postgresql, improving scalability.
+Implemented Migration strategies depends on the project requirements and improvements to enhance query performance.
+
+Received "The IBM Outstanding Contributor Award" from IBM for outstanding performance and lasting contribution in Philip Morries Project. 
+
+Received Certificate of Achievement from Zenith Infotech Ltd., for continued excellence in quality, commitment, dedication and focus on BANC724-HO Application Support.
+
+Recognition letters from Project Manager (Global Research) DBA Manager & Principal Technologist for the efforts in making the DBA remote support model a successful one (From
+Zenith Software).
+
+
+Expertise in Transition Management and Team Management to fulfil the gaps between operations and client to ensure smooth functioning 
+of DBMS operations. Handled Philipmorries and Centrica Plc Projects since from due-delegence to Go-Live stage.
+
+Partner with architects of different other engineering / application teams to engineer complex technical product in order to 
+provide palpable business solutions to various business divisions as a part of DBA Engineering project activities.
+
+
+Controlfile re-creation
+
+
+
+DB Patching Automation;
+DB backup remidiation;
+
+
+RMAN backup implementation for 9i and above 10g.
+DB Capacity proacctive Management
+
+Service catalog workwise
+DB security implementation via TDE
+
