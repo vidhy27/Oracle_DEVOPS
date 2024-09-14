@@ -1,0 +1,999 @@
+DB objects:
+============
+
+col username for a30
+col ACCOUNT_STATUS for a30
+ col PROFILE for a30
+col DEFAULT_TABLESPACE for a30
+select username,account_status,profile,default_tablespace from dba_users where username like '%MGR%';
+
+
+col owner for a30
+col OBJECT_TYPE for a35
+col STATUS for a30
+col OBJECT_NAME for a35
+col TABLE_owner for a30
+col TABLESPACE_NAME for a30
+col COMPRESS for a30
+col TABLE_NAME for a30
+col PARTITION_NAME for a30
+col INDEX_NAME for a30
+col uniqueness for a20
+col INDEX_TYPE for a25
+col column_name for a25
+col grantee for a30
+col index_owner for a30
+
+select owner,object_name,object_type, status,object_id from dba_objects where  object_name in ('USER_TAB_PART_ODS_STG','USER_TABPART_ODS2_STG','USER_TABPART_ODS3_STG_STG_STG');
+select owner,object_name,object_type, status from dba_objects where  object_name='FRS_LND_LND_LOAD_PKG' and object_type='TABLE';
+select distinct owner,object_type, status from dba_objects ;
+
+count:
+
+select distinct count(*),object_type,owner, status from dba_objects where owner='DIST'
+group by object_type, owner,status 
+order by owner;
+
+select distinct count(*),object_type,owner, status from dba_objects 
+group by object_type, owner,status
+order by owner;
+
+COUNT(*) OBJECT_TYPE             OWNER                          STATUS
+---------- ----------------------- ------------------------------ -------
+       2 SYNONYM                 PERF                           VALID
+     165 TABLE                   PERF                           VALID
+     383 LOB                     PERF                           VALID
+     436 INDEX                   PERF                           VALID
+    1402 LOB PARTITION           PERF                           VALID
+    5292 TABLE SUBPARTITION      PERF                           VALID
+    7031 TABLE PARTITION         PERF                           VALID
+   15038 INDEX PARTITION         PERF                           VALID
+
+8 rows selected.
+
+
+You can run the following query to check if any of the in-scope tables are involved in open transactions and close the transactions:
+===================================================================================================================================
+SELECT t.start_scnw,t.start_scnb,t.start_time,s.username, o.object_name,o.owner FROM gv$transaction t, gv$session s, gv$locked_object l,dba_objects o
+WHERE
+l.object_id IN (<INSCOPE TABLES OBJECT ID FROM DBA_OBJECTS>) AND t.ses_addr = s.saddr AND t.xidusn = l.xidusn AND t.xidslot = l.xidslot AND t.xidsqn = l.xidsqn AND l.object_id = o.object_id
+
+
+SELECT t.start_scnw,t.start_scnb,t.start_time,s.username, o.object_name,o.owner FROM gv$transaction t, gv$session s, gv$locked_object l,dba_objects o
+WHERE
+l.object_id IN ('114326') AND t.ses_addr = s.saddr AND t.xidusn = l.xidusn AND t.xidslot = l.xidslot AND t.xidsqn = l.xidsqn AND l.object_id = o.object_id
+
+To identify pending transaction on DB:
+======================================
+SELECT COUNT(*)
+       FROM gv$transaction t, gv$session s, gv$mystat m
+      WHERE t.ses_addr = s.saddr
+        AND s.sid = m.sid
+        AND ROWNUM = 1;
+
+
+Partition created timestamp:
+============================
+select owner,object_name,subobject_name,to_char(created,'DD.MM.YYYY HH24:MI:SS') from dba_objects where
+object_name  in
+('OMS_ORDER',
+'OMS_ORDER_LINE',
+'ORDER_LINE_EVENT',
+'CHARGES',
+'PAYMENT',
+'ORDER_EVENT',
+'ORDERS_FEED',
+'TAXES')
+and object_type='TABLE PARTITION' and trunc(created) = trunc(sysdate);
+
+select subobject_name from dba_objects where
+object_name  in
+('OMS_ORDER',
+'OMS_ORDER_LINE',
+'ORDER_LINE_EVENT',
+'CHARGES',
+'PAYMENT',
+'ORDER_EVENT',
+'ORDERS_FEED',
+'TAXES')
+and object_type='TABLE PARTITION' and trunc(created) = trunc(sysdate);
+
+Query to get 
+
+select table_name,partition_name, partition_position , high_value, tablespace_name from dba_tab_partitions
+where table_name in ('GOM_ORDER_HEADER','GOM_LINE_STATUS','GOM_ORDER_LINE','GOM_LINE_STATUS_SNAPSHOT','GOM_ORD_LKP','GOM_PAYMENT','GOM_ORDER_RELEASE','GOM_SHIPTO_ADDRESS','SFM_HOLD_LOCATION','SFM_RELEASE_LINE','SFM_SHIPMENT_LINE','SFM_SHIPTO_ADDRESS','GOM_CONTAINER_DETAIL','GOM_SHIPMENT_HEADER','GOM_SHIPMENT_LINE','SPARTA_ORDER_INVOICE','SPARTA_ORDER_INVOICE_DETAIL')
+and table_owner = 'PERF'
+and partition_position = ( select min(partition_position)
+from dba_tab_partitions
+where table_name in ('GOM_ORDER_HEADER','GOM_LINE_STATUS','GOM_ORDER_LINE','GOM_LINE_STATUS_SNAPSHOT','GOM_ORD_LKP','GOM_PAYMENT','GOM_ORDER_RELEASE','GOM_SHIPTO_ADDRESS','SFM_HOLD_LOCATION','SFM_RELEASE_LINE','SFM_SHIPMENT_LINE','SFM_SHIPTO_ADDRESS','GOM_CONTAINER_DETAIL','GOM_SHIPMENT_HEADER','GOM_SHIPMENT_LINE','SPARTA_ORDER_INVOICE','SPARTA_ORDER_INVOICE_DETAIL')
+and table_owner = 'PERF' )
+order by table_name
+/                    
+
+
+select TABLE_OWNER,TABLE_NAME,COMPOSITE,PARTITION_NAME,LAST_ANALYZED,PARTITION_POSITION,SUBPARTITION_COUNT,COMPRESSION,COMPRESS_FOR, high_value  from dba_tab_partitions where TABLE_NAME='GOM_ORDER_HEADER'
+;
+
+select TABLE_OWNER,TABLE_NAME,PARTITION_NAME,SUBPARTITION_COUNT,TABLESPACE_NAME,SEGMENT_CREATED,COMPRESSION,COMPRESS_FOR from all_tab_partitions where table_name in
+('EL01_EVENT_DETAILS_FND_NEW');
+
+select TABLE_OWNER,TABLE_NAME,PARTITION_NAME,SUBPARTITION_NAME,COMPRESSION,COMPRESS_FOR from DBA_TAB_SUBPARTITIONS  where table_name in
+('EL01_EVENT_DETAILS_FND');
+ select TABLE_OWNER,TABLE_NAME,PARTITION_NAME,SUBPARTITION_NAME,COMPRESSION,COMPRESS_FOR from DBA_TAB_SUBPARTITIONS where table_name in
+('EL01_EVENT_DETAILS_FND_NEW');
+
+
+select TABLE_OWNER,TABLE_NAME,PARTITION_NAME,TABLESPACE_NAME,SEGMENT_CREATED from all_tab_partitions where PARTITION_NAME in
+('SYS_P134483',
+'SYS_P134605',
+'SYS_P134618',
+'SYS_P134405',
+'SYS_P134452',
+'SYS_P134453',
+'SYS_P134464',
+'SYS_P134475',
+'SYS_P134560',
+'SYS_P135110',
+'SYS_P134431');
+
+with xml as (
+    select dbms_xmlgen.getxmltype('
+                                   select table_name, partition_name,TABLESPACE_NAME, blocks, high_value,COMPRESSION,COMPRESS_FOR
+                                   from dba_tab_partitions
+                                          where table_NAME in (''ACCOUNT_MASTER_AM01_SEGMENT'')
+                                          and partition_name not like ''P%''
+                                   and table_owner = ''TEDCLZ''' ) as x from   dual
+)
+  select extractValue(rws.object_value, '/ROW/TABLE_NAME') table_name,
+         extractValue(rws.object_value, '/ROW/PARTITION_NAME') partition,
+         extractValue(rws.object_value, '/ROW/TABLESPACE_NAME') tablespace,
+         extractValue(rws.object_value, '/ROW/BLOCKS')*8/1024/1024 GB ,
+         extractValue(rws.object_value, '/ROW/COMPRESSION') COMPRESSION,
+         extractValue(rws.object_value, '/ROW/COMPRESS_FOR') COMPRESS_FOR,
+         to_date(substr(extractValue(rws.object_value, '/ROW/HIGH_VALUE') ,12,10),'YYYY-MM-DD') high_value
+  from   xml x,
+         table(xmlsequence(extract(x.x, '/ROWSET/ROW'))) rws ORDER BY HIGH_VALUE desc
+/
+
+select TRUNC(SYSDATE)-90 from dual;
+
+with xml as (
+    select dbms_xmlgen.getxmltype('
+                                   select table_name, partition_name,TABLESPACE_NAME, blocks, high_value
+                                   from dba_tab_partitions
+                                          where table_NAME in (''TSYS_LOYALTY_REWARD_40_E'')
+                                          and partition_name not like ''P%''
+                                   and table_owner = ''TEDCLZ''' ) as x from   dual
+)
+  select extractValue(rws.object_value, '/ROW/TABLE_NAME') table_name,
+         extractValue(rws.object_value, '/ROW/PARTITION_NAME') partition,
+         extractValue(rws.object_value, '/ROW/TABLESPACE_NAME') tablespace,
+         extractValue(rws.object_value, '/ROW/BLOCKS')*8/1024/1024 GB ,
+         to_date(substr(extractValue(rws.object_value, '/ROW/HIGH_VALUE') ,12,10),'YYYY-MM-DD') high_value
+  from   xml x,
+         table(xmlsequence(extract(x.x, '/ROWSET/ROW'))) rws ORDER BY HIGH_VALUE desc
+/
+
+
+SELECT * from (
+  SELECT PARTITION_NAME,
+    extractvalue
+      ( dbms_xmlgen.getxmltype
+        ( 'select high_value
+           from DBA_TAB_PARTITIONS where table_name = ''' || t.table_name || ''' and PARTITION_NAME = ''' || t.PARTITION_NAME || ''''),
+        '//text()' ) as high_value 
+  FROM DBA_TAB_PARTITIONS t
+  WHERE TABLE_NAME = 'MY_TABLE')
+WHERE to_char(add_months(sysdate,-1),'SYYYYMMDD') < high_value;
+
+
+
+select owner,object_name,subobject_name,to_char(created,'DD.MM.YYYY HH24:MI:SS') from dba_objects where
+object_name  in
+('ITEM_LOC_PRC_RECORD','ITEM_LOC_PRC_ATTR')
+and object_type='INDEX PARTITION' and trunc(created) = trunc(sysdate);
+
+PARTITION KEY:
+
+select owner,name,column_name,cplumn_position from ALL_PART_KEY_COLUMNS
+where name='ALLOC_CAPACITY_SUMMARY' and owner='PERF';
+
+To check partition data:
+
+
+SELECT *
+FROM   TABLE  PARTITION (SYS_P215177);
+
+SELECT *
+FROM   PERF.GOM_ORDER_LINE  PARTITION (SYS_P215177);
+
+
+To know partition type:
+select owner,index_name,table_name,PARTITIONING_TYPE,locality from ALL_PART_INDEXES where table_name='PL01_PRB_LNGBTCH_SEG_E' and owner='TEDCLZ';
+
+
+Below script is useful in getting user commit statistics information in the oracle database. user commits is the number of commits happening the database. It will be helpful in tracking the number of transactions in the database.
+
+==========================================================================================================================
+col STAT_NAME for a20
+col VALUE_DIFF for 9999,999,999
+col STAT_PER_MIN for 9999,999,999
+set lines 200 pages 1500 long 99999999
+col BEGIN_INTERVAL_TIME for a30
+col END_INTERVAL_TIME for a30
+set pagesize 40
+
+select hsys.SNAP_ID,
+hsnap.BEGIN_INTERVAL_TIME,
+hsnap.END_INTERVAL_TIME,
+hsys.STAT_NAME,
+hsys.VALUE,
+hsys.VALUE - LAG(hsys.VALUE,1,0) OVER (ORDER BY hsys.SNAP_ID) AS "VALUE_DIFF",
+round((hsys.VALUE - LAG(hsys.VALUE,1,0) OVER (ORDER BY hsys.SNAP_ID)) /
+round(abs(extract(hour from (hsnap.END_INTERVAL_TIME - hsnap.BEGIN_INTERVAL_TIME))*60 +
+extract(minute from (hsnap.END_INTERVAL_TIME - hsnap.BEGIN_INTERVAL_TIME)) +
+extract(second from (hsnap.END_INTERVAL_TIME - hsnap.BEGIN_INTERVAL_TIME))/60),1)) "STAT_PER_MIN"
+from dba_hist_sysstat hsys, dba_hist_snapshot hsnap
+where hsys.snap_id = hsnap.snap_id
+and hsnap.instance_number in (select instance_number from v$instance)
+and hsnap.instance_number = hsys.instance_number
+and hsys.STAT_NAME='user commits'
+order by 1;
+
+
+
+select /*+RULE */ s.username, o.name "Locked object", l.sid, s.serial#,
+p.spid, l.type, round(l.ctime/60,0) "Minutes",
+decode(l.lmode,’1′,’-‘,’2′,’RS’,’3′,’RX’,’4′,’S’,’5′,’SRX’,’6′,’X’) "Mode",
+substr(s.program,greatest((length(s.program) – 19),1),20) "Program name",
+substr(s.osuser,1,10)"OS user",
+substr(s.machine,1,12) "Machine", substr(s.terminal,1,10) "Terminal"
+from gv$process p, sys.obj$ o, gv$session s, gv$lock l, gv$locked_object lo
+where l.sid = lo.session_id and l.sid > 5
+and (l.id2 = lo.xidsqn or l.id1 = lo.object_id)
+and s.sid = lo.session_id and o.obj# = lo.object_id
+and p.addr = s.paddr
+order by l.ctime;
+
+
+=============================================================================================
+INDEX TYPE & COLUMN NAME:
+
+select 
+b.uniqueness, a.index_name, b.INDEX_TYPE,a.table_name, a.column_name 
+from all_ind_columns a, all_indexes b
+where a.index_name=b.index_name 
+and a.table_name = ('REGN_WIP')
+order by a.table_name, a.index_name, a.column_position;
+
+ select
+       locality
+    from
+       dba_part_indexes
+    where
+      index_name='CIF_TYPE5_RECORD_FD_AK' ;-
+
+SQL> select
+  2     locality
+  3  from
+  4     dba_part_indexes
+  5  where
+  6     index_name='CIF_TYPE5_RECORD_FD_AK' ;--Global non-partitioned index
+no rows selected
+Elapsed: 00:00:00.352
+SQL> select
+  2     locality
+  3  from
+  4     dba_part_indexes
+  5  where
+  6     index_name='PL01_PRB_LNGBTCH_SEG_E_PK' ;--Local partitioned index
+
+LOCALI
+------
+LOCAL
+
+Elapsed: 00:00:00.315
+
+select owner,index_name,index_type,status,tablespace_name,table_name,table_owner from dba_indexes where (owner,index_name) in (select owner,object_name from dba_objects where object_id in (3229998));
+
+
+The "locality" column of dba_part_indexes indicates whether the partitioned index is local (where locality=LOCAL) or global (where locality=GLOBAL) .  If no rows are found, then it is a global non-partitioned index.  If locality=LOCAL then it is a local partitioned index and if locality=GLOBAL then you have a global partitioned index.
+
+=========================
+Index - Oracle:
+
+select owner,table_name,index_name,status,degree from dba_indexes where index_name='SYS_C0043831';
+
+select dbms_metadata.get_ddl('INDEX','SYS_C0043831','TEDSEC') from dual;
+
+alter index "OMSMGR"."ORDER_L_QTY_INTL_S_PRIM_K" rebuild NOREVERSE parallel 12 ONLINE;
+alter index "TEDSEC"."SYS_C0043831" rebuild  ONLINE;
+
+Check the index is local or global:
+
+select INDEX_NAME,TABLE_NAME,INDEX_type ,GLOBAL_STATS from dba_indexes where table_name = 'EMP';
+
+
+
+
+select INDEX_OWNER,INDEX_NAME,PARTITION_NAME,SUBPARTITION_COUNT,STATUS,TABLESPACE_NAME from dba_ind_partitions where index_name in (
+'TSYS_LOYALTY_REWARD_50_E_PK',
+'TSYS_LOYALTY_REWARD_30_E_PK',
+'TSYS_LOYALTY_REWARD_40_E_PK',
+'TSYS_LOYALTY_REWARD_66_E_PK',
+'TSYS_LOYALTY_REWARD_65_E_PK',
+'TSYS_LOYALTY_REWARD_20_E_PK')
+/
+select owner,table_name,index_name,status,degree,TABLESPACE_NAME from dba_indexes where table_name in ('TSYS_LOYALTY_REWARD_20_E','TSYS_LOYALTY_REWARD_30_E','TSYS_LOYALTY_REWARD_40_E','TSYS_LOYALTY_REWARD_50_E',
+'TSYS_LOYALTY_REWARD_65_E','TSYS_LOYALTY_REWARD_66_E');
+desc dba_objects
+select owner,object_name,object_type, status,object_id from dba_objects where object_type='INDEX' and  object_name in (
+'TSYS_LOYALTY_REWARD_50_E_PK',
+'TSYS_LOYALTY_REWARD_30_E_PK',
+'TSYS_LOYALTY_REWARD_40_E_PK',
+'TSYS_LOYALTY_REWARD_66_E_PK',
+'TSYS_LOYALTY_REWARD_65_E_PK',
+'TSYS_LOYALTY_REWARD_20_E_PK')
+/
+
+INDEX CORRUPTION:
+==================
+
+col owner for a30
+col index_name for a30
+col object_name format a30
+col segment_name forma a30
+col SUBOBJECT_NAME for a30
+col INDEX_TYPE for a30
+col TABLE_OWNER for a30
+col tablespace_name for a30
+col table_name for a30
+
+Action Plan
+========
+Query to identify the objects being used on DML operation and action plan to confirm the corruption. i.e :
+
+1. Identify the index by executing the following query:
+set lines 200
+col object_name format a30
+col segment_name forma a30
+alter session set nls_date_format = 'dd/mm/yyyy hh24:mi:ss';
+select owner, object_name, object_type, SUBOBJECT_NAME, STATUS, OBJECT_ID, DATA_OBJECT_ID,created,LAST_DDL_TIME,TIMESTAMP from dba_objects where object_id in (3229998;
+select owner,segment_name,partition_name,segment_type from dba_extents where file_id =89 and 87546939 between block_id and block_id + blocks - 1;
+
+2. To find the base table & index type, execute:
+
+select owner,index_name,index_type,status,tablespace_name,table_name,table_owner from dba_indexes where (owner,index_name) in (select owner,object_name from dba_objects where object_id in (3229998));
+
+3. Using results from the above query, capture the DDL definition of the index and table using the following:
+
+set pagesize 0
+set long 999999999
+set lines 141
+column txt format a141 word_wrapped
+set feedback off
+set echo off
+spool cridx.sql
+select dbms_metadata.get_ddl ('TABLE', '<table name>','<table owner>') txt from dual;
+select DBMS_METADATA.GET_DEPENDENT_DDL ('INDEX','<table anme>','<table owner>') txt from dual;
+spool off
+
+Note: Functional based indexes require the use of deterministic functions to avoid ORA-8102. Functional indexes should use DETERMINISTIC user functions; any user-defined function
+referenced in column_expression must be declared as DETERMINISTIC and the plsql exception handler should not ignore error ORA-4091.
+
+Non-deterministic Functional indexes like the ones depending on NLS settings are exposed to ORA-8102. This is not a limitation of the Oracle database. Oracle depends on users correctly designating their FBI-functions as deterministic.
+
+Reference
+=======
+Note 568005.1 ORA-8102 On Select / Update with Function Based Index using Timestamp Column
+Note 1067112.1 ORA-8102 at update when having a FunctionBasedIndex(FBI) index present based on incorrect function
+Note 1067112.1 has an example where the function is deterministic but error ORA-4091 is handled in the "exception" section of the function.
+
+
+
+STATS LAST_ANALYZE:
+==================
+select OWNER,TABLE_NAME,TABLESPACE_NAME,STATUS,LAST_ANALYZED,PARTITIONED from dba_tables where TABLE_NAME in ('CRAR_EVNT_FCT','CRAR_DIM_H') and owner='TEDCDM';
+select OWNER,TABLE_NAME,TABLESPACE_NAME,STATUS,LAST_ANALYZED,PARTITIONED from dba_tables where TABLE_NAME='EL01_EVENT_DETAILS' and owner='TEDFND';
+
+select TABLE_OWNER,TABLE_NAME,COMPOSITE,PARTITION_NAME,LAST_ANALYZED,PARTITION_POSITION,SUBPARTITION_COUNT,COMPRESSION,COMPRESS_FOR, high_value  from dba_tab_partitions where TABLE_NAME='GOM_ORDER_HEADER'
+
+select sum(bytes/1024/1024/1024) from dba_segments where owner='TEDFND' and segment_name='PURGED_ACCOUNT_DETAIL' and segment_type='TABLE';
+select sum(bytes/1024) from dba_segments where owner='TEDCDM' and segment_name='CRAR_EVNT_FCT'  and segment_type='TABLE';
+
+
+alter index id14_idx disable; (works on function based index)
+To find duplicate rows in table:
+
+SELECT *
+FROM <Table_Name> A
+WHERE
+A.rowid >
+any(SELECT B.rowid FROM <Table_Name> B
+WHERE
+B.KEY1 = A.KEY1
+and
+B.KEY2 = A.KEY2
+and
+B.KEY3 = A.KEY3
+and
+B.KEY4 = A.KEY4
+);
+
+SELECT *
+FROM  TEDSEC.WORKER_DIM_W  A
+WHERE
+A.rowid >
+any(SELECT B.rowid FROM <Table_Name> B
+WHERE
+B.KEY1 = A.KEY1
+and
+B.KEY2 = A.KEY2
+and
+B.KEY3 = A.KEY3
+and
+B.KEY4 = A.KEY4
+);
+
+The duplicate key rows were inserted to the database by using the
+DIRECT parameter of the sql loader to specify direct path loading which bypasses integrity constraints.
+Run the following script to remove the duplicates:
+
+DELETE
+FROM <Table_Name> A
+WHERE
+A.rowid >
+any(SELECT B.rowid FROM <Table_Name> B
+WHERE
+B.KEY1 = A.KEY1
+and
+B.KEY2 = A.KEY2
+and
+B.KEY3 = A.KEY3
+and
+B.KEY4 = A.KEY4
+);
+
+select /*+ parallel(4) monitor */ * from omsmgr.order_snapshot;
+
+
+SELECT sid,
+       serial#,
+       target,
+       target_desc,
+       sofar,
+       totalwork,
+       start_time,
+       time_remaining,
+       elapsed_seconds
+  FROM gv$session_longops
+ WHERE time_remaining > 0;
+
+
+  select owner,table_name,index_name,status,degree,TABLESPACE_NAME from dba_indexes where table_name ='CIF_TYPE5_RECORD_ACT_FD_200323'
+  
+  select * from dba_ind_partitions where index_name = 'CIF_TYPE5_RECORD_ACT_FD_AK_1'
+
+
+  select 'alter index '||index_owner||'.'||index_name||' rebuild partition '||partition_name||' online parallel 16;' from dba_ind_partitions where index_name='CIF_TYPE5_RECORD_ACT_FD_AK_1';
+
+alter index TEDFND.CIF_TYPE5_RECORD_ACT_FD_AK_1 rebuild partition P001 online parallel 16;
+
+TEDP01:
+
+
+
+alter session set container=e91d0112pd1;
+
+select pkcol, count(*) from TEDSEC.WORKER_DIM_W group by pkcol having count(*) > 1;
+
+
+SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD;'
+FROM DBA_INDEXES
+WHERE STATUS = 'UNUSABLE';
+
+desc TEDSEC.WORKER_DIM_W
+
+SELECT OWNER, INDEX_NAME, INDEX_TYPE, TABLE_OWNER, COMPRESSION, STATUS FROM DBA_INDEXES WHERE TABLE_NAME = 'WORKER_DIM_W' AND STATUS <> 'VALID' and owner='TEDSEC';
+
+SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD;' FROM DBA_INDEXES WHERE STATUS = 'UNUSABLE' AND TABLE_NAME = 'WORKER_DIM_W' and owner='TEDSEC';
+
+
+alter index "TEDSEC"."SYS_C0043831" rebuild  ONLINE;
+
+select owner,table_name,index_name,status,degree from dba_indexes where index_name='SYS_C0043831';
+
+
+
+select dbms_metadata.get_ddl('INDEX','SYS_C0043831','TEDSEC') from dual;
+
+
+select * from (select col1, col2, count(*) cnt from TEDSEC.WORKER_DIM_W   group by col1, col2 ) where cnt > 1 order by cnt desc;
+
+
+ https://richardfoote.wordpress.com/category/index-rebuild/
+ https://oradbaeasy.wordpress.com/2009/06/01/how-to-determine-an-index-needs-to-be-rebuilt/
+
+
+select SID,target,to_char(start_time,'hh24:mi') start_time,elapsed_seconds/60 elapsed,round(time_remaining/60,2) "min_remaining",message from gv$session_longops where time_remaining > 0;
+
+
+
+select owner,segment_name,segment_type,tablespace_name,sum(bytes/1024/1024)from dba_segments where segment_type='TEMPORARY'
+and TABLESPACE_NAME='OMSDAT01' group by owner,segment_name,segment_type,tablespace_name,bytes;
+
+
+SELECT MESSAGE FROM V$SESSION_LONGOPS WHERE SID IN (SELECT SID FROM V$SESSION WHERE USERNAME='SYS' AND STATUS='ACTIVE') ORDER BY START_TIME;
+
+col a.sid format 9999
+select a.sid, sql_text ,target, sofar, totalwork, time_remaining still, elapsed_seconds tillnow
+from gv$session a ,  gv$sql b, v$session_longops c
+where a.sid=c.sid
+and a.sql_address = b.address
+and a.sql_address = c.sql_address
+and status  = 'ACTIVE';
+
+index progress:
+SELECT SID, SERIAL#, SQL_ID, USERNAME, OPNAME, TARGET_DESC, CONTEXT,
+SOFAR, TOTALWORK, ROUND(SOFAR/TOTALWORK*100,2) "%_COMPLETE", TIME_REMAINING/60 REMAINING_MINS, MESSAGE
+FROM GV$SESSION_LONGOPS
+WHERE OPNAME NOT LIKE 'RMAN%' AND OPNAME NOT LIKE '%aggregate%' AND TOTALWORK != 0 AND SOFAR <> TOTALWORK;
+
+SELECT SID, SERIAL#, SQL_ID, USERNAME, OPNAME, TARGET_DESC, CONTEXT,
+SOFAR, TOTALWORK, ROUND(SOFAR/TOTALWORK*100,2) “%_COMPLETE”, TIME_REMAINING/60 REMAINING_MINS, MESSAGE
+FROM GV$SESSION_LONGOPS
+WHERE OPNAME NOT LIKE ‘RMAN%’ AND OPNAME NOT LIKE ‘%aggregate%’ AND TOTALWORK != 0 AND SOFAR <> TOTALWORK;
+
+select sid,target,to_char(start_time,'hh24:mi') start_time,elapsed_seconds/60 elapsed,round(time_remaining/60,2) "min_remaining",message
+from gv$session_longops where time_remaining > 0;
+
+To identify whether session is enabled for parallel operation:
+select inst_id,sid,serial#,username,pq_status,pddl_status,pdml_status,program,machine from gv$session where program like 'sqlplus%' or program like 'SQL%';
+select distinct username,program,PDML_STATUS,PDDL_STATUS,PQ_STATUS from gv$session;
+
+To identify index rebuild progress:
+col OPNAME for a30
+col username for a20
+col message for a90
+
+SELECT SID, SERIAL#, SQL_ID, USERNAME, OPNAME, MESSAGE,TARGET_DESC, CONTEXT,
+SOFAR, TOTALWORK, ROUND(SOFAR/TOTALWORK*100,2) "%_COMPLETE", TIME_REMAINING/60 REMAINING_MINS
+FROM GV$SESSION_LONGOPS
+WHERE OPNAME NOT LIKE 'RMAN%' AND OPNAME NOT LIKE '%aggregate%' AND TOTALWORK != 0 AND SOFAR <> TOTALWORK;
+
+SELECT MESSAGE
+FROM gV$SESSION_LONGOPS
+WHERE SID IN (SELECT SID FROM V$SESSION WHERE USERNAME='SYS' AND STATUS='ACTIVE')
+ORDER BY START_TIME;
+
+col message for a100
+col operation for a100
+col start_time for a20
+SELECT start_time AS "Started",MESSAGE,'Operation: '||opname||' on '||NVL(target,'--not given--')||' is '||
+'Roughly ' || ROUND((((time_remaining+elapsed_seconds) - time_remaining) / (time_remaining+elapsed_seconds)) * 100) ||'% Complete' AS "Progress"
+,ROUND((time_remaining/60),1)||' minutes' AS "Remaining"
+FROM gV$SESSION_LONGOPS
+WHERE SID IN (SELECT SID FROM V$SESSION WHERE USERNAME='SYS' AND STATUS='ACTIVE')
+ORDER BY START_TIME;
+
+SELECT
+start_time AS "Started"
+,'Operation: '||opname||' on '||NVL(target,'--not given--')||' is '||
+'Roughly ' || ROUND((((time_remaining+elapsed_seconds) - time_remaining) / (time_remaining+elapsed_seconds)) * 100) ||'% Complete' AS "Progress"
+,ROUND((time_remaining/60),1)||' minutes' AS "Remaining"
+FROM gv$session_longops l
+, gv$session s
+WHERE s.username = 'SYS'
+AND s.status = 'ACTIVE'
+AND l.time_remaining > 0
+ORDER BY start_time DESC;
+
+SELECT
+      s.sid
+     ,SUBSTR(s.program,DECODE(INSTR(s.program,'('),0,NULL,INSTR(program,'('))) slave
+     ,TO_CHAR(st.value,'FM999G999G999G999') Bytes
+     ,TO_CHAR(st.value/1024/1024,'FM999G999G999G999') MBytes
+ FROM v$sesstat  st
+     ,v$session  s
+     ,v$statname n
+WHERE n.NAME = 'session pga memory'
+  AND st.statistic# = n.statistic#
+  AND st.sid = s.sid
+  AND s.sid IN ('707');
+
+
+
+
+
+select OWNER,INDEX_NAME,TABLE_NAME,TABLESPACE_NAME from dba_indexes where INDEX_NAME='CHARGES_PRIM_K';
+
+select owner,segment_name,segment_type,tablespace_name,sum(bytes/1024/1024)
+from dba_segments
+where segment_type='TEMPORARY'
+and TABLESPACE_NAME='<TARGET_TABLESPACE_NAME>'
+group by owner,segment_name,segment_type,tablespace_name,bytes;
+
+select owner,segment_name,segment_type,tablespace_name,sum(bytes/1024/1024)
+from dba_segments
+where segment_type='TEMPORARY'
+and TABLESPACE_NAME='OMSDAT01'
+group by owner,segment_name,segment_type,tablespace_name,bytes;
+
+
+select * from dba_ind_columns where table_name = 'GIFTCARD';
+INDEX_OWNER, INDEX_NAME,        TABLE_OWNER, TABLE_NAME,    COLUMN_NAME
+TGCMGR	    IDX_GC_UUID	        TGCMGR	     GIFTCARD	    UUID
+TGCMGR	    IDX_GC_ORDR_DTL_ID	TGCMGR	     GIFTCARD	    ORDER_DETAIL_ID
+TGCMGR	    IDX_GC_PK	        TGCMGR	     GIFTCARD	    GIFTCARD_NUMBER
+
+
+
+Rebuild the partition local index with the script
+
+-- Offline rebuild
+SET LINESIZE 5000;
+SET PAGESIZE 5000;
+SET LONG 50000;
+SET TRIMSPOOL ON
+SET WRAP ON
+set termout off
+set verify off
+set longchunksize 200000
+set feedback off
+SET HEADING Off
+set echo off
+Select 'ALTER INDEX '|| index_name ||' rebuild partition ' || PARTITION_NAME ||';' from dba_IND_PARTITIONS where INDEX_OWNER='HR';
+
+-- Online rebuild
+SET LINESIZE 5000;
+SET PAGESIZE 5000;
+SET LONG 50000;
+SET TRIMSPOOL ON
+SET WRAP ON
+set termout off
+set verify off
+set longchunksize 200000
+set feedback off
+SET HEADING Off
+set echo off
+Select 'ALTER INDEX '|| index_name ||' rebuild partition ' || PARTITION_NAME ||' online ;' from dba_IND_PARTITIONS where INDEX_OWNER='HR';
+
+
+==============================================================
+
+To identify table stats are locked or not:
+
+select owner, table_name, stattype_locked
+from dba_tab_statistics
+where stattype_locked is not null;
+
+exec dbms_stats.lock_table_stats('TEST','TECH');
+
+================================================
+synonym:
+
+SQL> col owner for a30
+SQL> col SYNONYM_NAME for a30
+SQL> col TABLE_OWNER for a30
+SQL> col TABLE_NAME for a30
+SQL> col DB_LINK for a30
+SQL>
+select * from dba_synonyms s
+where table_owner not in('SYSTEM','SYS')
+and db_link is null
+and not exists
+(select 1
+from dba_objects o
+where s.table_owner=o.owner
+and s.table_name=o.object_name);
+
+SQL> create synonym TGCUSR.BREAK_VINT_CAL for TGCMGR.BREAK_VINT_CAL;
+
+Synonym created.
+
+SQL> select count(*) from TGCSUP.BREAK_VINT_CAL;
+select count(*) from TGCSUP.BREAK_VINT_CAL
+                            *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+SQL> select count(*) from  TGCUSR.BREAK_VINT_CAL;
+
+  COUNT(*)
+----------
+      7242
+
+select dbms_metadata.get_ddl('SYNONYM','GCR_RECONCILIATION','PUBLIC') from dual;
+
+
+all_synonyms: View synonyms available to the current user.
+dba_synonyms: View all synonyms in the database.
+user_synonyms: Private synonyms owned by the current user.
+
+
+
+
+=====================
+drop objects:
+
+-- Drop all objects in that database by spooling the output of below statement.
+ select count(*),owner,object_type from dba_objects where status='INVALID' group by owner,object_type;
+ select count(*),owner,object_type from dba_objects where status='INVALID' and owner='SYS' group by owner,object_type;
+  select owner,object_type,object_name,status from dba_objects where status='INVALID' and owner='SYS'
+    select owner,object_type,object_name,status from dba_objects where status='INVALID' ;
+
+ select  count(*),owner,object_type,object_name from dba_objects where status='INVALID' group by owner,object_type,object_name;
+
+
+
+
+SET PAUSE ON
+SET PAUSE 'Press Return to Continue'
+SET PAGESIZE 60
+SET LINESIZE 300
+SET VERIFY OFF
+
+COL comp_name FOR a44 HEA 'Component'
+COL version FOR a17 HEA 'Version'
+COL status FOR a17 HEA 'Status'
+
+SELECT comp_name, version, status FROM dba_registry
+/
+
+set pages 1000;
+col comp_id for a12;
+col comp_name for a35;
+col version for a12;
+col status for a12;
+select comp_id,comp_name,version,status from dba_registry;
+
+execute sys.dbms_registry.loaded('JAVAVM')
+execute sys.dbms_registry.valid('JAVAVM');
+
+execute sys.dbms_registry.loaded('SDO')
+execute sys.dbms_registry.valid('SDO');
+
+COMP_NAME                             VERSION     STATUS
+------------------------------------- ----------- ----------
+JServer JAVA Virtual Machine          19.0.0.0.0  INVALID
+
+SQL> execute sys.dbms_registry.loaded('JAVAVM')
+
+PL/SQL procedure successfully completed.
+
+SQL> execute sys.dbms_registry.loaded('CATJAVA');
+
+PL/SQL procedure successfully completed.
+
+SQL> execute sys.dbms_registry.valid('JAVAVM');
+
+PL/SQL procedure successfully completed.
+
+SQL> execute sys.dbms_registry.valid('CATJAVA');
+
+PL/SQL procedure successfully completed.
+
+SELECT owner, object_name, object_type, status
+FROM dba_objects
+WHERE object_name LIKE 'ÛMS_JAVA%'
+OR object_name LIKE '%INITJVMAUX%'
+ORDER BY owner, object_name, object_type;
+
+select distinct 'drop '||object_type ||' '|| owner||'.'|| object_name|| DECODE(OBJECT_TYPE,'TABLE',' CASCADE  CONSTRAINTS;',';')
+from dba_objects where owner in ('WH_ITEMATTRSUGG_P1') and object_type='TABLE PARTITION' ;
+
+1. Execute the utlrp SQL for validate all the invalid components and objects in Oracle
+@ORACLE_HOME\rdbms\admin\utlrp.sql;
+2. If not valid, then re-execute the catalog and catproc scripts for rebuild.
+$ sqlplus / as sysdba
+@$ORACLE_HOME/rdbms/admin/catalog.sql
+@$ORACLE_HOME/rdbms/admin/catproc.sql
+@$ORACLE_HOME/rdbms/admin/utlrp.sql
+
+EXECUTE UTL_RECOMP.RECOMP_SERIAL();
+EXECUTE UTL_RECOMP.RECOMP_SERIAL('PUBLIC');
+EXECUTE DBMS_PREUP.INVALID_OBJECTS;
+
+
+select
+   'ALTER ' || OBJECT_TYPE || ' ' ||
+   OWNER || '.' || OBJECT_NAME || ' COMPILE;'
+from
+   dba_objects
+where
+   status = 'INVALID'
+and
+   object_type in ('PACKAGE','FUNCTION','PROCEDURE')
+;
+
+select
+   'ALTER PUBLIC  ' || OBJECT_TYPE || ' ' ||
+   OWNER || '.' || OBJECT_NAME || ' COMPILE;'
+from
+   dba_objects
+where
+   status = 'INVALID'
+and
+   object_type in ('SYNONYM');
+
+
+select
+   'ALTER ' || OBJECT_TYPE || ' ' ||
+   OWNER || '.' || OBJECT_NAME || ' COMPILE;'
+from
+   dba_objects
+where
+   status = 'INVALID'
+;
+
+Select 'alter public synonym '||object_name||' compile;'
+From dba_objects
+Where status <> 'VALID'
+And owner = 'PUBLIC'
+And object_type = 'SYNONYM';
+
+
+alter public synonym "oracle/spatial/geocoder/common/CountryNameTable" compile;
+alter public synonym "oracle/spatial/geocoder/common/GeocoderVersion" compile;
+alter public synonym "oracle/spatial/geocoder/common/LBServer" compile;
+alter public synonym "oracle/spatial/geocoder/common/LBSException" compile;
+alter public synonym "oracle/spatial/geocoder/common/MatchMode" compile;
+alter public synonym "oracle/spatial/geocoder/common/ServerStatus" compile;
+alter public synonym "oracle/spatial/geocoder/parser/AddressParserConfig" compile;
+alter public synonym "oracle/spatial/geocoder/parser/KeywordTable" compile;
+alter public synonym "oracle/spatial/geocoder/parser/ProfileValidatorException" compile;
+alter public synonym "oracle/spatial/geocoder/server/ConnectionManager" compile;
+alter public synonym "oracle/spatial/geocoder/server/GeocoderConfig" compile;
+alter public synonym "oracle/spatial/geocoder/server/GeocoderConfigList" compile;
+alter public synonym "oracle/spatial/geocoder/server/GeocoderException" compile;
+alter public synonym "oracle/spatial/geocoder/util/Logger" compile;
+alter public synonym "oracle/spatial/geocoder/client/ExtractParserProfile" compile;
+
+select count(*),owner,object_type,status from dba_objects where status='INVALID'
+ group by owner,object_type,status;
+
+select comp_name,version,schema,status from dba_registry;
+select owner,object_type,status,count(*) from dba_objects group by owner,object_type,status;
+select owner,object_name,object_type from dba_objects where status <>'VALID' order by 1,2;
+
+
+SQL> set serverout on
+SQL> declare
+  2    cursor l_c is (select * from all_objects where status = 'INVALID' and object_name = 'XXX');
+  3    l_sql varchar2(3500);
+  4    l_type varchar2(3500);
+  5  begin
+  6    for i in l_c loop
+  7
+  8        if i.object_name = 'SYNONYM' and i.owner = 'PUBLIC'
+  9        then
+ 10          l_sql := 'alter PUBLIC SYNONYM ' || i.object_name || ' compile';
+ 11        else
+ 12          select decode(i.object_type,'PACKAGE BODY','PACKAGE',i.object_type)
+ 13            into l_type
+ 14            from dual;
+ 15
+ 16          l_sql := 'alter ' || l_type || ' ' || i.owner || '.' || i.object_name || ' compile';
+ 17        end if;
+ 18
+ 19        dbms_output.put_line(l_sql);
+ 20        execute immediate l_sql;
+ 21
+ 22    end loop;
+ 23  end;
+ 24  /
+alter SYNONYM PUBLIC.XXX compile
+declare
+*
+ERROR at line 1:
+ORA-00995: missing or invalid synonym identifier
+ORA-06512: at line 20
+ORA-06512: at line 20
+
+
+=========================
+gather table stats:
+
+EXEC DBMS_STATS.GATHER_TABLE_STATS( ownname => 'MFTMGR525_4' ,tabname => 'MBX_EXTRACT_COUNT', degree  => 4);
+
+TEDP01
+execute dbms_stats.gather_table_stats(ownname => 'TEDFND', tabname => 'EL01_EVENT_DETAILS_FND', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE,degree=>20,granularity=>'AUTO',method_opt => 'FOR ALL COLUMNS SIZE AUTO');
+
+For others:
+exec dbms_stats.gather_table_stats (ownname=>'IAGP_IMSTORE_MGR',tabname=>'LOCK12_5',estimate_percent=>DBMS_STATS.AUTO_SAMPLE_SIZE, degree=>20,granularity=>'AUTO',cascade=>DBMS_STATS.AUTO_CASCADE);
+
+
+gather index stats:
+
+
+
+execute dbms_stats.gather_index_stats(ownname => 'TIMED_IM_MGR', indname => 'PK_EM_KEY', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+=============================
+
+Sequences:
+==========
+
+desc dba_sequences
+col SEQUENCE_OWNER for a30
+col sequence_name for a30
+col increment_by for a30
+col cache_size for a30
+
+select SEQUENCE_OWNER,sequence_name,increment_by,cache_size from dba_sequences where SEQUENCE_OWNER='GOAPMGR';
+
+SELECT seq_name.NEXTVAL
+FROM dual;
+
+SELECT seq_name.CURRVAL
+FROM dual;
+
+02:21:36 SQL> select GOAPMGR.TC_CAPACITY_CONSUMPTION_ID_SEQ.nextval from dual;
+
+   NEXTVAL
+----------
+	 1
+
+Elapsed: 00:00:00.00
+02:21:58 SQL>
+
+
+SELECT * FROM USER_OBJECTS 
+WHERE OBJECT_TYPE='SEQUENCE' 
+AND ORACLE_MAINTAINED='N';
+
+col owner for a30
+col name for a30
+col type for a30
+col REFERENCED_OWNER for a30
+col REFERENCED_NAME for a30
+col REFERENCED_TYPE for a30
+select * from all_dependencies where referenced_type='SEQUENCE' and owner='TIMEP_ROLE_MGR';
+
+=====================================================================
+
+ind_columns:
+===========
+
+desc dba_tab_columns
+desc all_tab_columns
+
+select * from dba_tab_columns  where table_name like '%JSON%' and owner  in 'EDSMGR' 
+
+select * from dba_tab_columns where data_type='VARCHAR2' and DATA_LENGTH >4000 and owner  in 'EDSMGR' 
+and table_name not like 'ERR%';
+
+
+select * from dba_ind_columns where index_owner='EDSMGR' and column_name in (select column_name from dba_tab_columns where data_type='VARCHAR2' and DATA_LENGTH >4000 and owner  in 'EDSMGR' 
+and table_name not like 'ERR%');
+
+desc EDSMGR.GOM_LINE_CHARGES_JSON
+
+DATABASE LINK:
+==============
+SELECT obj.object_type "Object Type",
+  obj.owner            "Object Owner",
+  obj.object_name      "Object Name",
+  obj.status           "Object Status",
+  dbl.db_link          "DB Link",
+  dbl.username         "DB User Name",
+  dbl.host             "DB Host"
+FROM dba_objects obj,
+  dba_db_links dbl
+WHERE obj.object_name = dbl.db_link
+AND obj.object_type   = 'DATABASE LINK';
+
+
+SELECT * from dual@E09P1001PD1;
+
+select * from dual@public_db_link;
+
+DROP PUBLIC DATABASE LINK E09P1001PD1;
+
+
+CREATE PUBLIC DATABASE LINK E09P1001PD1 CONNECT TO tedusr identified by  "La9t3zr!TrJhZrSan"
+USING '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST= ed50-scan7.target.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=TEDS01)))';
+
+
+ Username: TEDUSR
+Password: Testconnection123$
